@@ -2,8 +2,7 @@ import requests
 from flask import current_app
 from flask_restx import Namespace, Resource, fields
 from app.config import Config
-
-MISSING_MID_MSG = "Merchant ID not set. Complete OAuth flow or set CLOVER_MERCHANT_ID in .env"
+from app.api_utils import make_clover_request, get_merchant_id_or_abort, build_merchant_url
 
 api = Namespace('merchants', description='Clover Merchant API operations')
 
@@ -25,16 +24,10 @@ class MerchantInfo(Resource):
         """Get merchant information"""
         try:
             config = Config()
-            merchant_id = config.get_merchant_id()
-            if not merchant_id:
-                api.abort(400, MISSING_MID_MSG)
-            url = f"{config.clover_api_url}/{config.CLOVER_API_VERSION}/merchants/{merchant_id}"
+            merchant_id = get_merchant_id_or_abort(api)
+            url = build_merchant_url(config, merchant_id)
 
-            response = requests.get(
-                url,
-                headers=config.get_headers(),
-                timeout=30
-            )
+            response = make_clover_request('GET', url, merchant_id)
 
             if response.status_code == 200:
                 return response.json()
@@ -51,16 +44,10 @@ class MerchantProperties(Resource):
         """Get merchant properties"""
         try:
             config = Config()
-            merchant_id = config.get_merchant_id()
-            if not merchant_id:
-                api.abort(400, MISSING_MID_MSG)
-            url = f"{config.clover_api_url}/{config.CLOVER_API_VERSION}/merchants/{merchant_id}/properties"
+            merchant_id = get_merchant_id_or_abort(api)
+            url = build_merchant_url(config, merchant_id, 'properties')
 
-            response = requests.get(
-                url,
-                headers=config.get_headers(),
-                timeout=30
-            )
+            response = make_clover_request('GET', url, merchant_id)
 
             if response.status_code == 200:
                 return response.json()

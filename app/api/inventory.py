@@ -2,6 +2,7 @@ import requests
 from flask import request
 from flask_restx import Namespace, Resource, fields
 from app.config import Config
+from app.api_utils import make_clover_request, get_merchant_id_or_abort, build_merchant_url
 
 api = Namespace('inventory', description='Clover Inventory API operations')
 

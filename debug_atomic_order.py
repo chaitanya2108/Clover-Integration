@@ -6,7 +6,7 @@ import requests
 import json
 
 def test_atomic_order():
-    url = "http://localhost:5000/api/orders/atomic/orders"
+    url = "http://localhost:8080/api/orders/atomic/orders"
     headers = {
         "accept": "application/json",
         "Content-Type": "application/json"
@@ -36,22 +36,22 @@ def test_atomic_order():
             }
         ]
     }
-    
+
     print("Testing atomic order creation...")
     print(f"URL: {url}")
     print(f"Payload: {json.dumps(payload, indent=2)}")
-    
+
     try:
         response = requests.post(url, headers=headers, json=payload, timeout=30)
         print(f"Status Code: {response.status_code}")
         print(f"Response Headers: {dict(response.headers)}")
-        
+
         try:
             response_data = response.json()
             print(f"Response JSON: {json.dumps(response_data, indent=2)}")
         except:
             print(f"Response Text: {response.text}")
-            
+
     except Exception as e:
         print(f"Request failed: {e}")
 

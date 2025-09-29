@@ -132,6 +132,75 @@ def create_app():
             except Exception as e:
                 return {'error': str(e)}, 500
 
+    @oauth_ns.route('/refresh')
+    class OAuthRefresh(Resource):
+        def post(self):
+            """Refresh access token using refresh token"""
+            try:
+                from app.token_store import get_all_tokens, save_tokens
+                import requests
+
+                # Get merchant_id from request or use default
+                merchant_id = request.args.get('merchant_id')
+                if not merchant_id:
+                    from app.token_store import get_default_merchant_id
+                    merchant_id = get_default_merchant_id()
+
+                if not merchant_id:
+                    return {'error': 'No merchant_id provided and no default merchant found'}, 400
+
+                # Get stored tokens
+                tokens = get_all_tokens()
+                token_data = tokens.get(merchant_id)
+
+                if not token_data:
+                    return {'error': f'No tokens found for merchant_id: {merchant_id}'}, 404
+
+                refresh_token = token_data.get('refresh_token')
+                if not refresh_token:
+                    return {'error': 'No refresh token available'}, 400
+
+                # Prepare refresh request
+                config = Config()
+                refresh_url = f"{config.oauth_token_base}/oauth/v2/refresh"
+
+                payload = {
+                    'client_id': config.CLOVER_APP_ID,
+                    'refresh_token': refresh_token
+                }
+
+                headers = {'Content-Type': 'application/json'}
+
+                # Make refresh request
+                response = requests.post(refresh_url, json=payload, headers=headers, timeout=30)
+
+                if response.status_code == 200:
+                    data = response.json()
+
+                    # Save new tokens
+                    save_tokens(
+                        merchant_id=merchant_id,
+                        access_token=data.get('access_token'),
+                        refresh_token=data.get('refresh_token', refresh_token),  # Keep old refresh token if not provided
+                        access_token_expiration=data.get('access_token_expiration'),
+                        refresh_token_expiration=data.get('refresh_token_expiration')
+                    )
+
+                    return {
+                        'message': 'Token refreshed successfully',
+                        'merchant_id': merchant_id,
+                        'access_token_expiration': data.get('access_token_expiration'),
+                        'refresh_token_expiration': data.get('refresh_token_expiration')
+                    }
+                else:
+                    return {
+                        'error': f'Token refresh failed: {response.text}',
+                        'status_code': response.status_code
+                    }, response.status_code
+
+            except Exception as e:
+                return {'error': f'Internal error during token refresh: {str(e)}'}, 500
+
     api.add_namespace(oauth_ns, path='/oauth')
 
     @app.route('/')

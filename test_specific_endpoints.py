@@ -35,7 +35,7 @@ def test_endpoint(url, method='GET', data=None, description=''):
 
 def main():
     """Test specific endpoints"""
-    base_url = "http://localhost:5000"
+    base_url = "http://localhost:8080"
 
     print("=" * 60)
     print("Clover API Specific Endpoint Tests")

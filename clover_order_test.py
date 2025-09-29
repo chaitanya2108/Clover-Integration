@@ -8,7 +8,7 @@ import json
 import time
 
 # Flask server base URL
-BASE_URL = "http://localhost:5000"
+BASE_URL = "http://localhost:8080"
 
 def create_test_atomic_order():
     """
@@ -95,7 +95,7 @@ def test_via_flask_api():
 
     except Exception as e:
         print(f"❌ ERROR: {str(e)}")
-        print("Make sure your Flask server is running on http://localhost:5000")
+        print("Make sure your Flask server is running on http://localhost:8080")
 
 if __name__ == "__main__":
     print("Clover Atomic Order Test Script")
@@ -108,7 +108,7 @@ if __name__ == "__main__":
     if choice == "1":
         create_test_atomic_order()
         print("\n📋 Copy the JSON payload above and use it in Swagger UI")
-        print("🌐 Go to: http://localhost:5000/ -> Try it out on POST /api/orders/atomic")
+        print("🌐 Go to: http://localhost:8080/ -> Try it out on POST /api/orders/atomic")
 
     elif choice == "2":
         test_via_flask_api()
@@ -117,4 +117,4 @@ if __name__ == "__main__":
         # Default: show payload
         create_test_atomic_order()
         print("\n📋 Copy the JSON payload above and use it in Swagger UI")
-        print("🌐 Go to: http://localhost:5000/ -> Try it out on POST /api/orders/atomic")
+        print("🌐 Go to: http://localhost:8080/ -> Try it out on POST /api/orders/atomic")

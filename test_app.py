@@ -30,7 +30,7 @@ def test_endpoint(url: str, description: str) -> Dict[str, Any]:
 
 def main():
     """Run basic tests on the Flask application"""
-    base_url = "http://localhost:5000"
+    base_url = "http://localhost:8080"
 
     print("=" * 60)
     print("Clover API Flask Application Test")
@@ -95,7 +95,7 @@ def main():
         print("✅ All tests passed! Your Flask application is running correctly.")
         print("\nNext steps:")
         print("1. Configure your Clover API credentials in .env file")
-        print("2. Visit http://localhost:5000/swagger/ to test Clover APIs")
+        print("2. Visit http://localhost:8080/swagger/ to test Clover APIs")
         print("3. Use /api/status endpoint to verify Clover API connection")
     else:
         print("❌ Some tests failed. Please check the application setup.")

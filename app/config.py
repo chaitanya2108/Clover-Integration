@@ -21,7 +21,7 @@ class Config:
     USE_SANDBOX = os.environ.get('USE_SANDBOX', 'True').lower() == 'true'
 
     # OAuth / app URLs
-    SITE_URL = os.environ.get('SITE_URL', 'http://localhost:5000')
+    SITE_URL = os.environ.get('SITE_URL', 'http://localhost:8080')
     OAUTH_CALLBACK_PATH = os.environ.get('OAUTH_CALLBACK_PATH', '/oauth/callback')
 
     @property
@@ -55,15 +55,15 @@ class Config:
 
     @classmethod
     def get_headers(cls):
-        """Get common headers for Clover API requests"""
+        """Get common headers for Clover API requests with auto-refresh"""
         token = cls.CLOVER_ACCESS_TOKEN
         # Try dynamic token from token store if not provided in env
         if not token:
             try:
-                from app.token_store import get_access_token, get_default_merchant_id
+                from app.token_store import get_valid_access_token, get_default_merchant_id
                 merchant_id = cls.CLOVER_MERCHANT_ID or get_default_merchant_id()
                 if merchant_id:
-                    token = get_access_token(merchant_id)
+                    token = get_valid_access_token(merchant_id)
             except Exception:
                 token = None
 

@@ -16,7 +16,7 @@ class CloverAPIClient:
         return f"{self.base_url}/{self.api_version}/merchants/{self.merchant_id}/{endpoint}"
 
     def _make_request(self, method: str, endpoint: str, **kwargs) -> requests.Response:
-        """Make HTTP request to Clover API"""
+        """Make HTTP request to Clover API with automatic token refresh"""
         url = self._get_url(endpoint)
         headers = self.config.get_headers()
 
@@ -29,6 +29,22 @@ class CloverAPIClient:
             kwargs['timeout'] = 30
 
         response = requests.request(method, url, headers=headers, **kwargs)
+
+        # If we get a 401 (Unauthorized), try to refresh token and retry once
+        if response.status_code == 401:
+            try:
+                from app.token_store import refresh_token_if_needed
+                merchant_id = self.config.get_merchant_id()
+                if merchant_id and refresh_token_if_needed(merchant_id):
+                    # Token was refreshed, get new headers and retry
+                    headers = self.config.get_headers()
+                    if 'headers' in kwargs:
+                        headers.update(kwargs.get('headers', {}))
+                    response = requests.request(method, url, headers=headers, **kwargs)
+            except Exception as e:
+                # If refresh fails, return original response
+                print(f"Token refresh attempt failed: {str(e)}")
+
         return response
 
     def get(self, endpoint: str, params: Optional[Dict[str, Any]] = None) -> requests.Response:

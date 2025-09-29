@@ -2,8 +2,7 @@ import requests
 from flask import request
 from flask_restx import Namespace, Resource, fields
 from app.config import Config
-
-MISSING_MID_MSG = "Merchant ID not set. Complete OAuth flow or set CLOVER_MERCHANT_ID in .env"
+from app.api_utils import make_clover_request, get_merchant_id_or_abort, build_merchant_url
 
 api = Namespace('orders', description='Clover Orders API operations')
 
@@ -153,10 +152,8 @@ class Orders(Resource):
         """Get all orders"""
         try:
             config = Config()
-            merchant_id = config.get_merchant_id()
-            if not merchant_id:
-                api.abort(400, MISSING_MID_MSG)
-            url = f"{config.clover_api_url}/{config.CLOVER_API_VERSION}/merchants/{merchant_id}/orders"
+            merchant_id = get_merchant_id_or_abort(api)
+            url = build_merchant_url(config, merchant_id, 'orders')
 
             # Get query parameters
             limit = request.args.get('limit', 100)
@@ -174,11 +171,11 @@ class Orders(Resource):
             if expand:
                 params['expand'] = expand
 
-            response = requests.get(
+            response = make_clover_request(
+                'GET',
                 url,
-                headers=config.get_headers(),
-                params=params,
-                timeout=30
+                merchant_id,
+                params=params
             )
 
             if response.status_code == 200:

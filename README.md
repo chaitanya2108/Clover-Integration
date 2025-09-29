@@ -71,7 +71,7 @@ A Flask application for testing Clover APIs with Swagger documentation integrati
    CLOVER_MERCHANT_ID=your_merchant_id_here
    CLOVER_APP_ID=your_app_id_here
    CLOVER_APP_SECRET=your_app_secret_here
-   SITE_URL=http://localhost:5000
+   SITE_URL=http://localhost:8080
    OAUTH_CALLBACK_PATH=/oauth/callback
    ```
 
@@ -82,9 +82,9 @@ A Flask application for testing Clover APIs with Swagger documentation integrati
    ```
 
 4. **Access the application:**
-   - Main app: http://localhost:5000
-   - Swagger docs: http://localhost:5000/swagger/
-   - Health check: http://localhost:5000/health
+   - Main app: http://localhost:8080
+   - Swagger docs: http://localhost:8080/swagger/
+   - Health check: http://localhost:8080/health
 
 ## Configuration
 
@@ -101,21 +101,47 @@ A Flask application for testing Clover APIs with Swagger documentation integrati
 - `FLASK_ENV`: Flask environment (development/production)
 - `FLASK_DEBUG`: Enable Flask debug mode
 - `SECRET_KEY`: Flask secret key
-- `SITE_URL`: Base URL for your app (default: http://localhost:5000)
+- `SITE_URL`: Base URL for your app (default: http://localhost:8080)
 - `OAUTH_CALLBACK_PATH`: OAuth callback path (default: /oauth/callback)
 
 ## OAuth Authentication
 
-1. In your Clover developer dashboard, set Alternate Launch Path to `/oauth/callback` and Site URL to `http://localhost:5000` (for local testing).
+1. In your Clover developer dashboard, set Alternate Launch Path to `/oauth/callback` and Site URL to `http://localhost:8080` (for local testing).
 2. Start the app and navigate to one of the following:
    - From Clover launch, Clover will redirect to `/oauth/callback?code=...&merchant_id=...` and the app will exchange the code automatically.
-   - Or initiate manually: `http://localhost:5000/oauth/authorize?merchant_id=YOUR_MERCHANT_ID` which redirects to Clover, then back to `/oauth/callback`.
+   - Or initiate manually: `http://localhost:8080/oauth/authorize?merchant_id=YOUR_MERCHANT_ID` which redirects to Clover, then back to `/oauth/callback`.
 3. After successful exchange, tokens are stored locally in `tokens.json` (gitignored).
 4. You can verify tokens at `GET /oauth/tokens` (redacted) and API status at `GET /api/status`.
 
+### Token Refresh
+
+The application includes automatic token refresh functionality:
+
+- **Automatic Refresh**: All API calls automatically refresh expired access tokens
+- **Manual Refresh**: Use `POST /oauth/refresh` to manually refresh tokens
+- **Token Expiration**: Tokens are refreshed 60 seconds before expiration
+- **Retry Logic**: Failed API calls due to expired tokens are automatically retried once
+
+**Refresh Endpoint:**
+
+```bash
+curl -X POST http://localhost:8080/oauth/refresh
+```
+
+**Response:**
+
+```json
+{
+  "message": "Token refreshed successfully",
+  "merchant_id": "YOUR_MERCHANT_ID",
+  "access_token_expiration": 1758581462000,
+  "refresh_token_expiration": 1758581462000
+}
+```
+
 ## Testing with Swagger
 
-1. Navigate to http://localhost:5000/swagger/
+1. Navigate to http://localhost:8080/swagger/
 2. Expand any API section (e.g., "merchants", "inventory", etc.)
 3. Click on an endpoint to test
 4. Click "Try it out"

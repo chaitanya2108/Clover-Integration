@@ -8,7 +8,7 @@ import requests
 import json
 import time
 
-BASE_URL = "http://localhost:5000"
+BASE_URL = "http://localhost:8080"
 
 def print_section(title):
     """Print a formatted section header"""
@@ -261,7 +261,7 @@ def main():
     else:
         print("⚠️  Some tests failed. Check the error messages above.")
 
-    print("\n📋 Swagger UI Available at: http://localhost:5000/")
+    print("\n📋 Swagger UI Available at: http://localhost:8080/")
     print("🔍 Try the endpoints manually in Swagger for more detailed testing")
 
 if __name__ == "__main__":

@@ -111,8 +111,8 @@ _No request body required_
 ## Testing Workflow
 
 1. **Start your Flask server:** `python main.py`
-2. **Complete OAuth flow:** Visit `http://localhost:5000/oauth/authorize`
-3. **Open Swagger UI:** `http://localhost:5000/`
+2. **Complete OAuth flow:** Visit `http://localhost:8080/oauth/authorize`
+3. **Open Swagger UI:** `http://localhost:8080/`
 4. **Test in this order:**
    1. Create Atomic Order (copy payload from section 1)
    2. Note the returned order ID
