@@ -96,14 +96,18 @@ def refresh_token_if_needed(merchant_id: str) -> bool:
     Returns True if token was refreshed, False if no refresh was needed.
     """
     with _LOCK:
-        # Check if access token is expired
-        if not is_token_expired(merchant_id, 'access_token'):
-            return False
-
         data = _load_tokens()
         entry = data.get(merchant_id)
         if not entry:
             return False
+
+        # Check if access token is expired (inline to avoid nested lock)
+        expiration = entry.get('access_token_expiration')
+        if expiration:
+            current_time = int(time.time())
+            is_expired = current_time >= (expiration - 60)
+            if not is_expired:
+                return False  # Token is still valid
 
         refresh_token = entry.get('refresh_token')
         if not refresh_token:
